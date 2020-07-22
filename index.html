@@ -1,0 +1,56 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <video controls>
+      <source src="mobie.mp4" type="video/mp4" />
+      <track src="sub.vtt" kind="subtitles" srclang="en" label="English" />
+    </video>
+  </body>
+  <style>
+    video::cue {
+      background: transparent;
+      font-weight: 700;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+    integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    const socket = io('http://92.85.150.13:4001'),
+      video = document.getElementsByTagName('video')[0];
+
+    socket.on('connect', () => {
+      console.log('first connection');
+
+      socket.on('initial', (time) => {
+        video.currentTime = time;
+        video.play();
+      });
+
+      video.addEventListener('play', () => {
+        socket.emit('play', video.currentTime);
+      });
+
+      video.addEventListener('pause', () => {
+        socket.emit('pause', video.currentTime);
+      });
+
+      socket.on('gotPlayed', (time) => {
+        video.currentTime = time;
+        video.play();
+      });
+
+      socket.on('gotPaused', (time) => {
+        video.currentTime = time;
+        video.pause();
+      });
+    });
+  </script>
+</html>
